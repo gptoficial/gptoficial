@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recargar | GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <header class="header">
+        <img src="imagen/logo.png" alt="Logo" class="logo" />
+        <h1 class="highlight">Recargar Saldo</h1>
+        <p class="slogan">Envía tu recarga vía Nequi y adjunta el comprobante</p>
+      </header>
+
+      <section class="qr-section">
+        <h3 class="highlight">📲 Escanea este código QR</h3>
+        <p>O envía manualmente a <strong>+57 300 000 0000</strong></p>
+        <div class="qr-box">
+          <img src="imagen/nequi_qr.png" alt="QR Nequi" class="qr-imagen" />
+        </div>
+      </section>
+
+      <section class="formulario recarga-form">
+        <input type="number" id="monto" placeholder="Monto a recargar (COP)" required />
+        <input type="text" id="comprobante" placeholder="Número de comprobante o referencia" required />
+        <button onclick="enviarRecarga()">📤 Enviar comprobante</button>
+      </section>
+
+      <p class="form-link">
+        <a href="perfil.html">⬅️ Volver al perfil</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function enviarRecarga() {
+      const monto = document.getElementById("monto").value;
+      const comprobante = document.getElementById("comprobante").value;
+
+      if (monto === '' || comprobante === '') {
+        alert("Por favor completa todos los campos.");
+        return;
+      }
+
+      alert(`✅ Recarga enviada:\nMonto: $${monto} COP\nComprobante: ${comprobante}\n\nPronto será verificado.`);
+      // Aquí luego se conectará con Firebase
+      document.getElementById("monto").value = '';
+      document.getElementById("comprobante").value = '';
+    }
+  </script>
+</body>
+</html>

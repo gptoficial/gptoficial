@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+
+      <!-- Imágenes al inicio -->
+      <section class="galeria-inicio">
+        <div class="columna">
+          <img src="imagen/izquierda1.jpg" alt="Izquierda 1" class="galeria-img" />
+          <img src="imagen/izquierda2.jpg" alt="Izquierda 2" class="galeria-img" />
+        </div>
+        <div class="columna">
+          <img src="imagen/derecha1.jpg" alt="Derecha 1" class="galeria-img" />
+          <img src="imagen/derecha2.jpg" alt="Derecha 2" class="galeria-img" />
+        </div>
+      </section>
+
+      <header class="header">
+        <img src="imagen/logo.png" alt="Logo" class="logo" />
+        <h1>Bienvenido a <span class="highlight">GPT Oficial</span></h1>
+        <p class="slogan">Invierte hoy, gana mañana</p>
+      </header>
+
+      <section class="features">
+        <div class="feature">
+          <i class="fas fa-shield-alt fa-2x"></i>
+          <p>Seguridad garantizada en cada inversión</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-coins fa-2x"></i>
+          <p>Rendimientos diarios cada 24 horas</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-calendar-check fa-2x"></i>
+          <p>Paquetes a días, recolectables</p>
+        </div>
+      </section>
+
+      <section class="actions">
+        <p class="motivacion">Construye tu libertad financiera hoy mismo. Únete y haz crecer tu dinero con nosotros.</p>
+        <div class="button-group">
+          <button id="btn-login" onclick="window.location.href='login.html'">Iniciar Sesión</button>
+          <button id="btn-register" onclick="window.location.href='register.html'">Registrarse</button>
+          <button id="btn-contacto" onclick="window.location.href='contacto.html'">Contáctanos</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Firebase + lógica -->
+  <script src="app.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548",
+      measurementId: "G-HV4YYL4VC0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const analytics = getAnalytics(app);
+  </script>
+</body>
+</html>

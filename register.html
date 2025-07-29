@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrarse - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <div class="login-container">
+        <h2>Crear cuenta</h2>
+        <form id="form-registro" class="formulario">
+          <input type="text" id="nombre" placeholder="Tu nombre" required />
+          <input type="tel" id="telefono" placeholder="Número de teléfono" required />
+          <button type="submit">Registrarse</button>
+        </form>
+        <div class="form-link">
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase (app + firestore) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548",
+      measurementId: "G-HV4YYL4VC0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Obtener parámetro ?ref= de la URL
+    function obtenerParametroReferencia() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('ref') || null;
+    }
+
+    const referido = obtenerParametroReferencia();
+    if (referido) {
+      localStorage.setItem("referido", referido);
+    }
+
+    // Registro
+    document.getElementById("form-registro").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      const referidoGuardado = localStorage.getItem("referido") || null;
+
+      if (!nombre || !telefono) {
+        alert("Por favor completa todos los campos.");
+        return;
+      }
+
+      localStorage.setItem("nombre", nombre);
+      localStorage.setItem("telefono", telefono);
+
+      try {
+        const usuarioRef = doc(db, "usuarios", telefono);
+        const usuarioSnap = await getDoc(usuarioRef);
+
+        if (!usuarioSnap.exists()) {
+          await setDoc(usuarioRef, {
+            nombre,
+            telefono,
+            saldo: 0,
+            referido: referidoGuardado || null
+          });
+        }
+
+        alert(`✅ Bienvenido, ${nombre}`);
+        window.location.href = "perfil.html";
+      } catch (error) {
+        console.error("Error al registrar usuario:", error);
+        alert("❌ Hubo un error al registrar. Intenta de nuevo.");
+      }
+    });
+  </script>
+</body>
+</html>

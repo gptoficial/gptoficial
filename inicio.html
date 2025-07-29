@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GPT Oficial</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="nav-bar">
+    <ul>
+      <li><a href="inicio.html">Inicio</a></li>
+      <li><a href="login.html">Iniciar Sesión</a></li>
+      <li><a href="registro.html">Registrarse</a></li>
+      <li><a href="perfil.html">Perfil</a></li>
+      <li><a href="contacto.html">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="overlay">
+    <div class="container">
+
+      <header class="header">
+        <img src="imagen/logo.png" alt="Logo" class="logo" />
+        <h1>Bienvenido a <span class="highlight">GPT Oficial</span></h1>
+        <p class="tagline">Invierte hoy, gana mañana</p>
+      </header>
+
+      <!-- GALERÍA EN 3 COLUMNAS: IZQUIERDA - CENTRO - DERECHA -->
+      <div class="fila-3columnas">
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="columna-img">
+          <div class="img-con-texto">
+            <img src="imagen/izquierda1.png" alt="Protección garantizada">
+            <p>Protección garantizada</p>
+          </div>
+          <div class="img-con-texto">
+            <img src="imagen/izquierda2.png" alt="Soporte personalizado">
+            <p>Soporte personalizado</p>
+          </div>
+        </div>
+
+        <!-- CENTRO -->
+        <div class="columna-centro">
+          <h2>Invierte fácil, gana seguro</h2>
+          <p>GPT Oficial te permite invertir y ver tus ganancias en solo 24 horas.</p>
+          <button onclick="location.href='paquetes.html'">Ver Paquetes</button>
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="columna-img">
+          <div class="img-con-texto">
+            <img src="imagen/derecha1.png" alt="Pagos automáticos">
+            <p>Pagos automáticos</p>
+          </div>
+          <div class="img-con-texto">
+            <img src="imagen/derecha2.png" alt="Retiros inmediatos">
+            <p>Retiros inmediatos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCIONES -->
+      <section class="actions">
+        <p class="motivacion">Construye tu libertad financiera hoy mismo. Únete y haz crecer tu dinero con nosotros.</p>
+        <div class="button-group">
+          <button onclick="location.href='login.html'">Iniciar Sesión</button>
+          <button onclick="location.href='registro.html'">Registrarse</button>
+          <button onclick="location.href='contacto.html'">Contáctanos</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
