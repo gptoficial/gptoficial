@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solicitar Retiro - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    .retiro-formulario .resultado {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #aef;
+    }
+    .horario-info {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: rgba(255,255,255,0.05);
+      border-left: 4px solid #4caf50;
+      color: #eee;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <header class="header">
+        <img src="imagen/logo.png" alt="Logo" class="logo" />
+        <h1>Solicitar retiro</h1>
+        <p class="tagline">Completa los datos para procesar tu retiro</p>
+      </header>
+
+      <section class="retiro-formulario">
+        <form id="form-retiro" class="formulario">
+          <input type="number" id="monto-retiro" placeholder="Monto a retirar" required />
+          <input type="text" id="numero-nequi" placeholder="Tu número Nequi" required />
+          <p class="resultado" id="resultado-retiro"></p>
+          <button type="submit">Enviar solicitud</button>
+        </form>
+        <p class="nota-info">Los retiros se procesan en un máximo de 24 horas. Verifica que el número sea correcto.</p>
+
+        <div class="horario-info">
+          <strong>⏰ Retiros disponibles:</strong> Lunes, miércoles y viernes de 9:00 a.m. a 4:00 p.m.
+        </div>
+      </section>
+
+      <section class="acciones-perfil">
+        <button onclick="window.location.href='perfil.html'">Volver al perfil</button>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    // Escuchar cambios en el monto para calcular comisión
+    const montoInput = document.getElementById("monto-retiro");
+    const resultado = document.getElementById("resultado-retiro");
+
+    montoInput.addEventListener("input", () => {
+      const monto = parseFloat(montoInput.value);
+      if (!isNaN(monto) && monto > 0) {
+        const descuento = monto * 0.08;
+        const neto = monto - descuento;
+        resultado.textContent = `Recibirás: $${neto.toFixed(2)} (se descuenta 8%)`;
+      } else {
+        resultado.textContent = "";
+      }
+    });
+
+    // Opcional: lógica para validar día y hora permitida (puedes quitar esto si no lo necesitas bloquear)
+    const form = document.getElementById("form-retiro");
+    form.addEventListener("submit", (e) => {
+      const fecha = new Date();
+      const dia = fecha.getDay(); // 0 domingo, 1 lunes, 2 martes, ...
+      const hora = fecha.getHours();
+
+      // Solo lunes (1), miércoles (3), viernes (5) entre 9 y 16
+      if (![1, 3, 5].includes(dia) || hora < 9 || hora >= 16) {
+        e.preventDefault();
+        alert("⚠️ Los retiros solo están disponibles los lunes, miércoles y viernes de 9 a.m. a 4 p.m.");
+        return;
+      }
+
+      alert("✅ Tu solicitud ha sido enviada correctamente.");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form id="form-login" class="formulario" novalidate>
+          <input
+            type="tel"
+            id="telefono-login"
+            placeholder="Tu número registrado"
+            required
+          />
+          <button type="submit">Ingresar</button>
+        </form>
+
+        <div class="form-link">
+          ¿Aún no tienes cuenta? <a href="registro.html">Regístrate</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase: conexión a Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    // 🔐 Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 🟢 Inicio de sesión
+    document.getElementById("form-login").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const telefonoLogin = document.getElementById("telefono-login").value.trim();
+
+      if (!telefonoLogin) {
+        alert("⚠️ Por favor ingresa tu número.");
+        return;
+      }
+
+      try {
+        const q = query(collection(db, "usuarios"), where("telefono", "==", telefonoLogin));
+        const resultado = await getDocs(q);
+
+        if (!resultado.empty) {
+          localStorage.setItem("telefonoUsuario", telefonoLogin);
+          alert("✅ Bienvenido de nuevo");
+          window.location.href = "inicio.html";
+        } else {
+          alert("❌ Número no registrado. Regístrate primero.");
+        }
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        alert("❌ Ocurrió un error. Intenta nuevamente.");
+      }
+    });
+  </script>
+</body>
+</html>

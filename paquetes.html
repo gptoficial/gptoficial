@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paquetes | GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .paquetes-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .paquete-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .paquete-card h3 {
+      margin-top: 0;
+      color: #00e5ff;
+    }
+
+    .paquete-card p {
+      margin: 6px 0;
+    }
+
+    .paquete-card button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #00c853;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .paquete-card button:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
+
+    .temporizador {
+      font-size: 14px;
+      margin-top: 10px;
+      color: #ffd54f;
+    }
+
+    .volver-btn {
+      display: block;
+      margin: 50px auto 0;
+      text-align: center;
+      background-color: #00c2ff;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      width: fit-content;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 Paquetes Disponibles</h1>
+  <div class="paquetes-container" id="paquetes-lista"></div>
+
+  <!-- 🔙 Botón Volver -->
+  <a href="inicio.html" class="volver-btn">⬅️ Volver al perfil</a>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, doc, updateDoc, addDoc,
+      query, where, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usuarioID = localStorage.getItem("telefonoUsuario") || "usuario_demo";
+
+    function crearTemporizador(tiempoLimite, elemento) {
+      function actualizar() {
+        const ahora = new Date();
+        const diff = tiempoLimite - ahora;
+
+        if (diff <= 0) {
+          elemento.innerText = "⏰ Paquete expirado";
+          elemento.closest(".paquete-card")?.remove();
+          clearInterval(intervalo);
+          return;
+        }
+
+        const horas = Math.floor(diff / (1000 * 60 * 60));
+        const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((diff % (1000 * 60)) / 1000);
+
+        elemento.innerText = `⏳ Expira en: ${horas}h ${minutos}m ${segundos}s`;
+      }
+
+      actualizar();
+      const intervalo = setInterval(actualizar, 1000);
+    }
+
+    async function cargarPaquetes() {
+      const contenedor = document.getElementById("paquetes-lista");
+      const ahora = new Date();
+      const ref = collection(db, "paquetes");
+      const snap = await getDocs(ref);
+
+      snap.forEach(async (docPaquete) => {
+        const data = docPaquete.data();
+
+        if (!data.activo) return;
+
+        const tiempoLimite = data.tiempoLimite?.toDate?.() || null;
+        if (tiempoLimite && tiempoLimite < ahora) return;
+
+        const card = document.createElement("div");
+        card.className = "paquete-card";
+
+        const temporizadorHTML = tiempoLimite ? '<div class="temporizador">⏳ Cargando...</div>' : "";
+
+        card.innerHTML = `
+          <h3>${data.nombre}</h3>
+          <p><strong>Precio:</strong> $${data.precio.toLocaleString()}</p>
+          <p><strong>Ganancia diaria:</strong> ${data.porcentaje}%</p>
+          <p><strong>Duración:</strong> ${data.duracionDias} días</p>
+          <p><em>${data.descripcion || ""}</em></p>
+          ${temporizadorHTML}
+          <button>Comprar</button>
+        `;
+
+        const boton = card.querySelector("button");
+
+        boton.onclick = async () => {
+          const confirmar = confirm(`¿Deseas comprar el paquete "${data.nombre}" por $${data.precio.toLocaleString()}?`);
+          if (!confirmar) return;
+
+          try {
+            const userQuery = query(collection(db, "usuarios"), where("telefono", "==", usuarioID));
+            const userSnap = await getDocs(userQuery);
+
+            if (userSnap.empty) {
+              alert("No se encontró tu usuario");
+              return;
+            }
+
+            const userDoc = userSnap.docs[0];
+            const saldo = userDoc.data().saldo || 0;
+
+            if (saldo < data.precio) {
+              alert("Saldo insuficiente");
+              return;
+            }
+
+            await updateDoc(userDoc.ref, {
+              saldo: saldo - data.precio
+            });
+
+            await addDoc(collection(db, "compras_paquetes"), {
+              usuarioID,
+              paqueteID: docPaquete.id,
+              nombrePaquete: data.nombre,
+              fechaInicio: serverTimestamp(),
+              diasTotales: data.duracionDias,
+              porcentaje: data.porcentaje,
+              recolectado: [],
+              activo: true
+            });
+
+            alert("✅ Paquete comprado exitosamente");
+          } catch (e) {
+            console.error(e);
+            alert("❌ Error al comprar paquete");
+          }
+        };
+
+        contenedor.appendChild(card);
+
+        if (tiempoLimite) {
+          const elTemp = card.querySelector(".temporizador");
+          crearTemporizador(tiempoLimite, elTemp);
+        }
+      });
+    }
+
+    cargarPaquetes();
+  </script>
+</body>
+</html>
