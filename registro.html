@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <div class="login-container">
+        <h2>Registro</h2>
+        <form id="form-registro" class="formulario" novalidate>
+
+          <!-- Campo Nombre -->
+          <input type="text" id="nombre-registro" placeholder="Tu nombre completo" required />
+
+          <!-- Campo Teléfono -->
+          <input type="tel" id="telefono-registro" placeholder="Tu número de celular" required />
+
+          <!-- reCAPTCHA visible -->
+          <div class="g-recaptcha" data-sitekey="6LfwqZMrAAAAAJ6uggKH9G50Sfx2vhbXs9AEcUYc"></div>
+
+          <button type="submit">Registrarse</button>
+        </form>
+
+        <div class="form-link">
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase + Registro -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      where,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    // Configuración Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Registro
+    document.getElementById("form-registro").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre-registro").value.trim();
+      const telefono = document.getElementById("telefono-registro").value.trim();
+      const captcha = grecaptcha.getResponse();
+
+      if (!nombre) {
+        alert("🧑 Por favor ingresa tu nombre.");
+        return;
+      }
+
+      if (!telefono) {
+        alert("📱 Por favor ingresa tu número.");
+        return;
+      }
+
+      if (!captcha) {
+        alert("⚠️ Por favor completa el reCAPTCHA.");
+        return;
+      }
+
+      try {
+        const q = query(collection(db, "usuarios"), where("telefono", "==", telefono));
+        const existe = await getDocs(q);
+
+        if (!existe.empty) {
+          alert("⚠️ Este número ya está registrado.");
+          return;
+        }
+
+        await addDoc(collection(db, "usuarios"), {
+          nombre: nombre,
+          telefono: telefono,
+          saldo: 0,
+          fechaRegistro: serverTimestamp()
+        });
+
+        // Guardar en localStorage
+        localStorage.setItem("nombreUsuario", nombre);
+        localStorage.setItem("telefonoUsuario", telefono);
+
+        alert("✅ Registro exitoso");
+        window.location.href = "inicio.html";
+      } catch (err) {
+        console.error("Error al registrar:", err);
+        alert("❌ Error al registrar. Intenta nuevamente.");
+      }
+    });
+  </script>
+</body>
+</html>
