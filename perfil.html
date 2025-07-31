@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: url('imagen/fondo.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding-bottom: 80px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: #00e5ff;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.6);
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .card img {
+      width: 150px;
+      display: block;
+      margin: 10px auto;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #00c3ff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #009acb;
+    }
+
+    .historial-lista {
+      list-style: none;
+      padding-left: 0;
+      font-size: 15px;
+    }
+
+    .footer-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #1f1f1f;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #333;
+      padding: 10px 0;
+      z-index: 100;
+    }
+
+    .footer-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .footer-nav i {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .info-item {
+      margin-bottom: 10px;
+    }
+
+    .info-item span {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" style="text-align:center">
+    <img src="imagen/logo.png" alt="Logo GPT Oficial" style="width:100px">
+    <h2>Mi Perfil</h2>
+  </div>
+
+  <div class="card" id="info-usuario">
+    <h3>👤 Información del Usuario</h3>
+    <div class="info-item">
+      <span>Nombre:</span>
+      <p id="user-nombre">-</p>
+    </div>
+    <div class="info-item">
+      <span>Teléfono:</span>
+      <p id="user-phone">-</p>
+    </div>
+    <div class="info-item">
+      <span>Saldo:</span>
+      <p>$<span id="user-saldo">0</span></p>
+    </div>
+    <div class="info-item">
+      <span>Referido por:</span>
+      <p id="user-referido">-</p>
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h3>📲 Recarga con Nequi</h3>
+    <img src="imagen/nequi_qr.png" alt="QR Nequi">
+    <p>Número: <strong>300 000 0000</strong></p>
+  </div>
+
+  <div class="card">
+    <h3>➕ Enviar Recarga</h3>
+    <form id="form-recarga">
+      <input type="number" id="monto-recarga" placeholder="Monto a recargar" required>
+      <input type="text" id="referencia-recarga" placeholder="Número de comprobante" required>
+      <button type="submit">Enviar</button>
+    </form>
+    <small>Validación manual en 24 horas.</small>
+  </div>
+
+  <div class="card">
+    <h3>📄 Historial de Recargas</h3>
+    <ul id="lista-recargas" class="historial-lista"></ul>
+  </div>
+
+  <div class="card">
+    <h3>📤 Historial de Retiros</h3>
+    <ul id="lista-retiros" class="historial-lista"></ul>
+  </div>
+
+  <div class="card">
+    <h3>💰 Historial de Ganancias</h3>
+    <ul id="lista-ganancias" class="historial-lista"></ul>
+  </div>
+
+  <div class="footer-nav">
+    <button onclick="location.href='inicio.html'"><i class="fas fa-home"></i>Inicio</button>
+    <button onclick="location.href='perfil.html'"><i class="fas fa-user"></i>Perfil</button>
+    <button onclick="location.href='paquetes.html'"><i class="fas fa-box"></i>Paquetes</button>
+    <button onclick="location.href='comprados.html'"><i class="fas fa-gift"></i>Comprados</button>
+    <button onclick="location.href='retiro.html'"><i class="fas fa-hand-holding-usd"></i>Retiro</button>
+    <button onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i>Salir</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore, collection, query, where, getDocs, addDoc,
+      updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const telefono = localStorage.getItem("telefonoUsuario");
+
+    if (!telefono) {
+      alert("⚠️ No has iniciado sesión.");
+      location.href = "login.html";
+    }
+
+    async function cargarPerfil() {
+      const q = query(collection(db, "usuarios"), where("telefono", "==", telefono));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const user = snap.docs[0].data();
+        document.getElementById("user-nombre").textContent = user.nombre || "-";
+        document.getElementById("user-phone").textContent = user.telefono || "-";
+        document.getElementById("user-saldo").textContent = (user.saldo || 0).toLocaleString("es-CO");
+        document.getElementById("user-referido").textContent = user.referido || "-";
+      }
+    }
+
+    async function cargarHistorial(nombreColeccion, idLista, formato) {
+      const q = query(collection(db, nombreColeccion), where("telefono", "==", telefono));
+      const snap = await getDocs(q);
+      const lista = document.getElementById(idLista);
+      lista.innerHTML = "";
+      snap.forEach(doc => {
+        const d = doc.data();
+        const li = document.createElement("li");
+        li.textContent = formato(d);
+        lista.appendChild(li);
+      });
+    }
+
+    document.getElementById("form-recarga").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const monto = parseFloat(document.getElementById("monto-recarga").value);
+      const referencia = document.getElementById("referencia-recarga").value;
+
+      if (!monto || !referencia) return alert("Completa todos los campos");
+
+      await addDoc(collection(db, "recargas"), {
+        telefono, monto, referencia,
+        estado: "pendiente",
+        fecha: serverTimestamp()
+      });
+
+      alert("✅ Recarga enviada correctamente");
+      document.getElementById("form-recarga").reset();
+      cargarHistorial("recargas", "lista-recargas", fRecarga);
+    });
+
+    function fRecarga(r) {
+      return `💰 $${r.monto?.toLocaleString("es-CO")} - Ref: ${r.referencia} (${r.estado || "pendiente"})`;
+    }
+
+    function fRetiro(r) {
+      return `📤 $${r.monto?.toLocaleString("es-CO")} - ${r.estado || "pendiente"}`;
+    }
+
+    function fGanancia(g) {
+      return `🎁 Paquete: ${g.nombre || "?"} - $${g.monto?.toLocaleString("es-CO")}`;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("telefonoUsuario");
+      location.href = "login.html";
+    }
+
+    cargarPerfil();
+    cargarHistorial("recargas", "lista-recargas", fRecarga);
+    cargarHistorial("retiros", "lista-retiros", fRetiro);
+    cargarHistorial("ganancias", "lista-ganancias", fGanancia);
+  </script>
+</body>
+</html>
