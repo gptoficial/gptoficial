@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar Sesión - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .password-container {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form id="form-login" class="formulario" novalidate>
+          <input
+            type="tel"
+            id="telefono-login"
+            placeholder="Tu número registrado"
+            required
+          />
+
+          <div class="password-container">
+            <input
+              type="password"
+              id="password-login"
+              placeholder="Tu contraseña"
+              required
+            />
+            <button type="button" class="toggle-password" onclick="togglePassword()">
+              👁️
+            </button>
+          </div>
+
+          <button type="submit">Ingresar</button>
+        </form>
+
+        <div class="form-link">
+          ¿Aún no tienes cuenta? <a href="registro.html">Regístrate</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script: ver/ocultar contraseña -->
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById("password-login");
+      const btn = document.querySelector(".toggle-password");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        btn.textContent = "🙈";
+      } else {
+        passwordInput.type = "password";
+        btn.textContent = "👁️";
+      }
+    }
+  </script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("form-login").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const telefonoLogin = document.getElementById("telefono-login").value.trim();
+      const passwordLogin = document.getElementById("password-login").value.trim();
+
+      if (!telefonoLogin || !passwordLogin) {
+        alert("⚠️ Por favor ingresa tu número y contraseña.");
+        return;
+      }
+
+      try {
+        const q = query(collection(db, "usuarios"), where("telefono", "==", telefonoLogin));
+        const resultado = await getDocs(q);
+
+        if (!resultado.empty) {
+          const userData = resultado.docs[0].data();
+          const contraseñaCorrecta = userData.password || "";
+
+          if (contraseñaCorrecta === passwordLogin) {
+            localStorage.setItem("telefonoUsuario", telefonoLogin);
+            localStorage.setItem("nombreUsuario", userData.nombre || "");
+
+            alert("✅ Bienvenido de nuevo");
+            setTimeout(() => {
+              window.location.href = "perfil.html";
+            }, 200);
+          } else {
+            alert("❌ Contraseña incorrecta");
+          }
+        } else {
+          alert("❌ Número no registrado. Regístrate primero.");
+        }
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        alert("❌ Ocurrió un error. Intenta nuevamente.");
+      }
+    });
+  </script>
+</body>
+</html>
