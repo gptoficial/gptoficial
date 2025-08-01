@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro - GPT Oficial</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <style>
+    body {
+      background: url('imagen/fondo.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Roboto', sans-serif;
+      color: white;
+      margin: 0;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00d4ff;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #00c3ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #009acb;
+    }
+
+    .form-link {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .form-link a {
+      color: #00d4ff;
+      text-decoration: none;
+    }
+
+    .g-recaptcha {
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+
+  <div class="overlay">
+    <div class="container">
+      <div class="login-container">
+        <h2>Registro</h2>
+        <form id="form-registro" class="formulario" novalidate>
+
+          <!-- Campo Nombre -->
+          <input type="text" id="nombre-registro" placeholder="Tu nombre completo" required />
+
+          <!-- Campo Teléfono -->
+          <input type="tel" id="telefono-registro" placeholder="Tu número de celular" required />
+
+          <!-- Campo Contraseña -->
+          <input type="password" id="password-registro" placeholder="Crea una contraseña" required />
+
+          <!-- reCAPTCHA -->
+          <div class="g-recaptcha" data-sitekey="6LfwqZMrAAAAAJ6uggKH9G50Sfx2vhbXs9AEcUYc"></div>
+
+          <button type="submit">Registrarse</button>
+        </form>
+
+        <div class="form-link">
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase + Registro -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      serverTimestamp,
+      doc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlZpLwWrawJcRYklBTNBUyrjQlcydhd8Q",
+      authDomain: "gpt-oficial.firebaseapp.com",
+      projectId: "gpt-oficial",
+      storageBucket: "gpt-oficial.appspot.com",
+      messagingSenderId: "569754799193",
+      appId: "1:569754799193:web:ba799e21890b58254d7548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("form-registro").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre-registro").value.trim();
+      const telefono = document.getElementById("telefono-registro").value.trim();
+      const password = document.getElementById("password-registro").value.trim();
+      const captcha = grecaptcha.getResponse();
+
+      if (!nombre) {
+        alert("🧑 Por favor ingresa tu nombre.");
+        return;
+      }
+
+      if (!telefono) {
+        alert("📱 Por favor ingresa tu número.");
+        return;
+      }
+
+      if (!password) {
+        alert("🔒 Por favor crea una contraseña.");
+        return;
+      }
+
+      if (!captcha) {
+        alert("⚠️ Por favor completa el reCAPTCHA.");
+        return;
+      }
+
+      try {
+        // Verificar si ya existe ese número
+        const q = query(collection(db, "usuarios"), where("telefono", "==", telefono));
+        const existe = await getDocs(q);
+
+        if (!existe.empty) {
+          alert("⚠️ Este número ya está registrado.");
+          return;
+        }
+
+        // Guardar el usuario con su número como ID
+        await setDoc(doc(db, "usuarios", telefono), {
+          nombre: nombre,
+          telefono: telefono,
+          password: password,
+          saldo: 0,
+          fechaRegistro: serverTimestamp()
+        });
+
+        localStorage.setItem("nombreUsuario", nombre);
+        localStorage.setItem("telefonoUsuario", telefono);
+
+        alert("✅ Registro exitoso");
+        window.location.href = "inicio.html";
+      } catch (err) {
+        console.error("Error al registrar:", err);
+        alert("❌ Error al registrar. Intenta nuevamente.");
+      }
+    });
+  </script>
+</body>
+</html>
